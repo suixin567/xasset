@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace libx
 {
@@ -108,14 +109,16 @@ namespace libx
 		public string searchPatternPrefab = "*.prefab";
 		public string searchPatternScene = "*.unity";
 		public string searchPatternText = "*.txt,*.bytes,*.json,*.csv,*.xml,*htm,*.html,*.yaml,*.fnt";
+        public static bool nameByHash = true;
+        
 		[Tooltip("构建的版本号")]
 		[Header("Builds")] 
         public int version;
-        [Tooltip("BuildPlayer 的时候被打包的场景")] public UnityEngine.Object[] scenes = new UnityEngine.Object[0]; 
+        [Tooltip("BuildPlayer 的时候被打包的场景")] public SceneAsset[] scenesInBuild = new SceneAsset[0]; 
         public BuildRule[] rules = new BuildRule[0]; 
 		[Header("Assets")]
-		public RuleAsset[] ruleAssets = new RuleAsset[0];
-		public RuleBundle[] ruleBundles = new RuleBundle[0];
+		[HideInInspector]public RuleAsset[] ruleAssets = new RuleAsset[0];
+        [HideInInspector]public RuleBundle[] ruleBundles = new RuleBundle[0];
         #region API
 
         public int AddVersion()
@@ -169,7 +172,11 @@ namespace libx
 
         private static string RuledAssetBundleName(string name)
         {
-            return Utility.GetMD5Hash(name) + Assets.Extension;
+            if (nameByHash)
+            {
+                return Utility.GetMD5Hash(name) + Assets.Extension; 
+            } 
+            return name.Replace("\\", "/").ToLower() + Assets.Extension;
         }
 
         private void Track(string asset, string bundle)

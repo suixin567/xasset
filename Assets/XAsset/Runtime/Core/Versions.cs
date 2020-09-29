@@ -113,14 +113,23 @@ namespace libx
 		{
 			if (!File.Exists (filename))
 				return -1;
-			using (var stream = File.OpenRead (filename)) {
-				var reader = new BinaryReader (stream);
-				return reader.ReadInt32 ();
+			try
+			{
+				using (var stream = File.OpenRead (filename)) {
+					var reader = new BinaryReader (stream);
+					return reader.ReadInt32 ();
+				}
 			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+				return -1;
+			} 
 		}
 
 		public static List<VFile> LoadVersions (string filename, bool update = false)
 		{
+            var rootDir = Path.GetDirectoryName(filename);
 			var data = update ? _updateData : _baseData;
 			data.Clear ();
 			using (var stream = File.OpenRead (filename)) {
@@ -134,6 +143,11 @@ namespace libx
 					version.Deserialize (reader);
 					list.Add (version);
 					data [version.name] = version;
+                    var dir = string.Format("{0}/{1}", rootDir, Path.GetDirectoryName(version.name));
+                    if (! Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
 				} 
 				return list;
 			}

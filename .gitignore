@@ -33,8 +33,9 @@ sysinfo.txt
 *.apk
 *.unitypackage
 *.DS_Store
+.idea
+.vscode
 Library
 Temp
 DLC
 UnityPackageManager
-*.mdb
